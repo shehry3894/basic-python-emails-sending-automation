@@ -116,6 +116,16 @@ uploaded_file = st.file_uploader("Upload Employee CSV", type=["csv"])
 if uploaded_file and template_file:
     df = pd.read_csv(uploaded_file).fillna('')
     df.drop_duplicates(subset=['email'], keep='first', inplace=True)
+    # Add status and timestamp columns if they don't exist
+    if "status" not in df.columns:
+        df["status"] = ""
+    if "timestamp" not in df.columns:
+        df["timestamp"] = ""
+
+    st.write("### Preview of Employee Data")
+    preview_placeholder = st.empty()
+    preview_placeholder.dataframe(df)
+
     env = Environment(
         loader=None,  # We are loading from a string, so no file system loader needed
         autoescape=select_autoescape(['html', 'xml'])
@@ -137,22 +147,10 @@ if uploaded_file and template_file:
     template = env.from_string(body_template_str)
     subject_template = env.from_string(subject_template_str)
 
-    # Add status and timestamp columns if they don't exist
-    if "status" not in df.columns:
-        df["status"] = ""
-    if "timestamp" not in df.columns:
-        df["timestamp"] = ""
-
-    st.write("### Preview of Employee Data")
-    preview_placeholder = st.empty()
-    preview_placeholder.dataframe(df)
-
     col1, col2 = st.columns(2)
 
     with col1:
         if st.button("Send Emails"):
-            df = pd.read_csv(uploaded_file.name).fillna('')
-            df.drop_duplicates(subset=['email'], keep='first', inplace=True)
             st.info("Connecting to Gmail... Please authorize once if prompted.")
             service = get_gmail_service()
             sender = "me"  # Gmail API will use your logged-in account
@@ -169,8 +167,6 @@ if uploaded_file and template_file:
     with col2:
         if df["status"].str.contains("failed").any():
             if st.button("Retry Failed Emails"):
-                df = pd.read_csv(uploaded_file.name).fillna('')
-                df.drop_duplicates(subset=['email'], keep='first', inplace=True)
                 st.info("Retrying failed emails...")
                 service = get_gmail_service()
                 sender = "me"

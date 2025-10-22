@@ -64,20 +64,18 @@ def send_emails(main_df, df_indices_to_process, template, service, sender, local
         row = main_df.loc[idx]
 
         if row['status'] == 'sent':
-            info_placeholder.info(f"⏩ Skipping {row['name']} ({row['email']}) as it's already sent.")
+            info_placeholder.info(f"⏩ Skipping ({row['email']}) as it's already sent.")
             progress_bar.progress((i + 1) / total)
             time.sleep(0.1)
             continue
 
         try:
             html_body = template.render(
-                name=row["name"],
                 email=row["email"],
                 amount=row.get("amount")
             )
 
             subject = subject_template.render(
-                name=row["name"],
                 email=row["email"],
                 amount=row.get("amount")
             )
@@ -87,7 +85,7 @@ def send_emails(main_df, df_indices_to_process, template, service, sender, local
 
             main_df.loc[idx, "status"] = "sent"
             main_df.loc[idx, "timestamp"] = datetime.now(local_timezone).isoformat()
-            success_placeholder.write(f"✅ Sent to {row['name']} ({row['email']})")
+            success_placeholder.write(f"✅ Sent to ({row['email']})")
             preview_placeholder.dataframe(main_df)
 
         except Exception as e:

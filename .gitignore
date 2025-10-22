@@ -1,0 +1,46 @@
+# -------------------------------
+# Python
+# -------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.log
+*.sqlite3
+*.db
+.env
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# -------------------------------
+# Streamlit Cache & Logs
+# -------------------------------
+.streamlit/
+logs/
+email_log_*.csv
+
+# -------------------------------
+# Google API Credentials & Tokens
+# -------------------------------
+credentials.json
+token.*
+client_secret_*.json
+
+# -------------------------------
+# OS / Editor Files
+# -------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.bak
+*.tmp
+*.orig

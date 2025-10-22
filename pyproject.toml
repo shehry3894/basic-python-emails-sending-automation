@@ -1,0 +1,16 @@
+[project]
+name = "gmail-email-sending"
+version = "0.1.0"
+description = "Streamlit Gmail mailer app for sending personalized emails"
+requires-python = ">=3.10"
+
+dependencies = [
+    "streamlit",
+    "google-auth",
+    "google-auth-oauthlib",
+    "google-auth-httplib2",
+    "google-api-python-client",
+    "jinja2",
+    "pandas",
+    "pytz>=2025.2",
+]

@@ -1,0 +1,18 @@
+Subject: Monthly Update - Medical Expenses Reimbursement
+
+<html>
+<body style="font-family:Arial, sans-serif;">
+  <p>Hi <b>{{ name }}</b>,</p>
+
+  <p>Here are your details for this month:</p>
+
+  <ul>
+    <li>Amount: Rs{{ amount | format_currency }}</li>
+  </ul>
+
+  <p>Please verify and acknowledge this information and reach out if any changes are needed.</p>
+
+  <p>Best regards,<br>
+  HR Department</p>
+</body>
+</html>

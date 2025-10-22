@@ -37,8 +37,9 @@ def get_gmail_service():
 # --- Email Creator ---
 def format_currency(value):
     try:
-        # Convert to float, format with 2 decimal places and comma as thousands separator
-        return f"{float(value):,.2f}"
+        # Convert to float first to handle potential decimal inputs, then round to nearest integer
+        # and format with comma as thousands separator, no decimal places
+        return f"{int(round(float(value))):,}"
     except (ValueError, TypeError):
         return value  # Return original value if conversion fails
 
@@ -100,20 +101,56 @@ def send_emails(main_df, df_indices_to_process, template, service, sender, local
 
 
 # --- Streamlit App ---
-st.set_page_config(page_title="Monthly Email Sender", layout="centered")
-st.title("📧 Monthly Employee Email Sender (Gmail API)")
+st.set_page_config(page_title="Email Automation 1.0", layout="centered")
+st.title("📧 Email Automation 1.0")
 
 st.write("This app lets you send personalized emails to all employees easily.")
 
 # Upload Email Template
 template_file = st.file_uploader("Upload Email Template (HTML)", type=["html"])
 
+# Dummy data for template preview
+dummy_data = {
+    "email": "john.doe@example.com",
+    "amount": 20500
+}
+
+if template_file:
+    template_file.seek(0)
+    template_content_for_preview = template_file.read().decode("utf-8")
+
+    env_preview = Environment(
+        loader=None,
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+    env_preview.filters['format_currency'] = format_currency
+
+    # Extract subject and body for preview
+    template_lines_preview = template_content_for_preview.split('\n')
+    first_line_preview = template_lines_preview[0]
+
+    if first_line_preview.startswith("Subject:"):
+        body_template_str_preview = '\n'.join(template_lines_preview[1:])
+    else:
+        body_template_str_preview = template_content_for_preview
+
+    template_preview = env_preview.from_string(body_template_str_preview)
+
+    st.subheader("Template Preview with Dummy Data")
+    try:
+        # Render with dummy data
+        rendered_html = template_preview.render(**dummy_data)
+        st.html(rendered_html)
+    except Exception as e:
+        st.error(f"Error rendering template with dummy data: {e}")
+
 # Upload CSV
 uploaded_file = st.file_uploader("Upload Employee CSV", type=["csv"])
 
 if uploaded_file and template_file:
+
     df = pd.read_csv(uploaded_file).fillna('')
-    df.drop_duplicates(subset=['email'], keep='first', inplace=True)
+    # df.drop_duplicates(subset=['email'], keep='first', inplace=True)
     # Add status and timestamp columns if they don't exist
     if "status" not in df.columns:
         df["status"] = ""
@@ -121,8 +158,14 @@ if uploaded_file and template_file:
         df["timestamp"] = ""
 
     st.write("### Preview of Employee Data")
+
+    # Placeholder for the DataFrame display (full df with scrollbar or updated during sending)
     preview_placeholder = st.empty()
-    preview_placeholder.dataframe(df)
+
+    # Display the full DataFrame with a fixed height and scrollbar
+    # Calculate height for 10 rows + header (approx 35px per row + 35px for header)
+    dataframe_height = min(len(df), 10) * 35 + 35
+    preview_placeholder.dataframe(df, height=dataframe_height)
 
     env = Environment(
         loader=None,  # We are loading from a string, so no file system loader needed
